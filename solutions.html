@@ -591,7 +591,7 @@ mark.hl {
 <header class="site-header">
   <div class="kicker">公務人員特種考試關務人員四等考試 ‧ 資訊處理</div>
   <h1>資訊處理<span class="stamp">·</span>程式設計概要<br>歷年考古題完整詳解</h1>
-  <div class="sub">97 年 ～ 114 年 ‧ 逐題解析 ‧ 完整程式碼 ‧ 相似題分類</div>
+  <div class="sub">97 年 ～ 115 年 ‧ 逐題解析 ‧ 完整程式碼 ‧ 相似題分類</div>
 </header>
 
 <div class="stat-bar">
@@ -631,7 +631,7 @@ mark.hl {
 
 <footer class="site-footer">
   <p><strong>公務人員特種考試關務人員四等考試</strong>　資訊處理・程式設計概要　考古題複習系統</p>
-  <p>本系統收錄 97～114 年共 17 個年度考題（缺 102 年），所有詳解為依專業知識編寫之參考解答，非官方標準答案。</p>
+  <p>本系統收錄 97～115 年共 18 個年度考題（缺 102 年），所有詳解為依專業知識編寫之參考解答，非官方標準答案。</p>
   <p style="margin-top:.6rem;opacity:.7;">點擊任一題目卡可展開／收合詳解　‧　可切換「依年度」或「依主題分類」檢視</p>
 </footer>
 
@@ -640,6 +640,282 @@ mark.hl {
 
 /* ===== 關務四等資訊處理 程式設計概要 — 全部關務年度 ===== */
 const EXAM_DATA_CUSTOMS = [
+{
+  year: "115", exam: "customs",
+  subject: "程式設計概要", totalScore: 100, timeLimit: "90分鐘",
+  questions: [
+    {
+      id: "cs-prog-115-1", no: "一", topic: "prog", topicName: "程式設計實作",
+      title: "C++ 變數作用域與傳值／傳參考 — 追蹤輸出並說明原因（區域遮蔽全域、reference）",
+      score: 30,
+      question: `請追蹤下列根基於 C++所撰寫的程式，列出輸出結果，每項輸出皆要說明為何會輸出所對映數值的原因，受那些規則或副程式所決定的結果。（30 分）
+（程式碼見詳解下方）`,
+      answer: `**程式執行後輸出（g++ 實測；題目程式省略了 \`using namespace std;\`，此處假設已加上）**
+
+\`\`\`
+7. a = 100
+5. a = 101
+6. a = 102
+8. a = 102
+3. a = 10
+4. a = 11
+9. a = 103
+1. a = 104
+2. a = 105
+10. a = 104
+\`\`\`
+
+**逐行說明（依執行順序）**
+
+| 輸出 | 為什麼是這個值 | 決定的規則 |
+|---|---|---|
+| 7. a = 100 | main 內宣告了區域變數 a = 100，與全域變數 a = 10 同名 | 區域變數**遮蔽**（shadow）全域變數，名稱查找由內往外 |
+| 5. a = 101 | main 先 a++ 成 101，再呼叫 testC(a)，把 main 的 a 傳進去 | testC 的參數 \`int &a\` 是**參考**，是 main 的 a 的別名 |
+| 6. a = 102 | testC 內 a++ 改到的就是 main 的 a，變成 102 | 傳參考（call by reference）：修改會直接影響呼叫端 |
+| 8. a = 102 | 回到 main，a 已被 testC 改成 102 | 同上，修改在函式結束後仍保留 |
+| 3. a = 10 | testB 沒有參數也沒有區域變數 a，只能用**全域** a = 10 | main 的區域 a 對 testB 不可見（作用域不同） |
+| 4. a = 11 | testB 的 a++ 修改的是全域 a，變成 11 | 全域變數可被任何函式存取與修改 |
+| 9. a = 103 | main 的 a 在 8 之後 a++ 成 103，testB 並沒有動到它 | 區域 a 與全域 a 是**兩個不同的變數** |
+| 1. a = 104 | main 再 a++ 成 104，傳入 testA，參數 a 收到的是**複製值** | 傳值（call by value）：形參是實參的副本 |
+| 2. a = 105 | testA 內 a++ 只改了副本，變成 105 | 修改只在 testA 內有效 |
+| 10. a = 104 | testA 結束後，main 的 a 仍是 104 | 傳值不會影響呼叫端的原變數 |
+
+**重點規則整理**
+
+1. **作用域與遮蔽**：同名時，區域變數優先於全域變數；testB 找不到區域 a，才使用全域 a。
+2. **傳值**（testA）：函式拿到副本，改了不影響呼叫端。
+3. **傳參考**（testC）：函式拿到別名，改了等於改呼叫端的變數。
+4. **全域變數**（testB）：任何沒有同名區域變數的函式都能讀寫它；題目中全域 a 最後是 11。`,
+      code: {
+        lang: "cpp",
+        text: `#include <iostream>
+int a = 10;
+void testA(int a) {
+cout << "1. a = " << a << endl;
+a++;
+cout << "2. a = " << a << endl;
+}
+void testB(void) {
+cout << "3. a = " << a << endl;
+a++;
+cout << "4. a = " << a << endl;
+}
+void testC(int &a) {
+cout << "5. a = " << a << endl;
+a++;
+cout << "6. a = " << a << endl;
+}
+int main() {
+int a = 100;
+cout << "7. a = " << a << endl;
+a++;
+testC(a);
+cout << "8. a = " << a << endl;
+a++;
+testB();
+cout << "9. a = " << a << endl;
+a++;
+testA(a);
+cout << "10. a = " << a << endl;
+return 0;
+}`
+      }
+    },
+    {
+      id: "cs-prog-115-2", no: "二", topic: "prog", topicName: "程式設計實作",
+      title: "判斷兩個矩形是否重疊（左上角座標＋寬高，AABB 碰撞偵測）",
+      score: 20,
+      figure: "<svg viewBox='0 0 520 215' xmlns='http://www.w3.org/2000/svg' style='max-width:520px;width:100%;height:auto;display:block;background:#fffdf8;border:1px solid #d8d0bf;border-radius:6px;font-family:sans-serif'><rect x='70' y='50' width='190' height='100' fill='#555d70' stroke='#1a1f2c' stroke-width='1.8'/><text x='165' y='112' font-size='30' text-anchor='middle' font-weight='bold' fill='#ffffff'  font-family='sans-serif'>A</text><circle cx='70' cy='50' r='4' fill='#1a1f2c'/><text x='66' y='38' font-size='14' text-anchor='end' font-weight='normal' fill='#1a1f2c'  font-family='serif'>(x1, y1)</text><polyline points='52,50 52,150' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='47,50 57,50' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='47,150 57,150' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><text x='42' y='105' font-size='14' text-anchor='end' font-weight='normal' fill='#1a1f2c'  font-style='italic' font-family='serif'>h1</text><polyline points='70,168 260,168' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='70,163 70,173' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='260,163 260,173' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><text x='165' y='188' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  font-style='italic' font-family='serif'>w1</text><rect x='350' y='72' width='120' height='72' fill='#a9afbd' stroke='#1a1f2c' stroke-width='1.8'/><text x='410' y='120' font-size='26' text-anchor='middle' font-weight='bold' fill='#ffffff'  font-family='sans-serif'>B</text><circle cx='350' cy='72' r='4' fill='#1a1f2c'/><text x='346' y='60' font-size='14' text-anchor='end' font-weight='normal' fill='#1a1f2c'  font-family='serif'>(x2, y2)</text><polyline points='332,72 332,144' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='327,72 337,72' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='327,144 337,144' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><text x='322' y='113' font-size='14' text-anchor='end' font-weight='normal' fill='#1a1f2c'  font-style='italic' font-family='serif'>h2</text><polyline points='350,162 470,162' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='350,157 350,167' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><polyline points='470,157 470,167' fill='none' stroke='#1a1f2c' stroke-width='1.3' stroke-linejoin='round'/><text x='410' y='182' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  font-style='italic' font-family='serif'>w2</text></svg>",
+      question: `給定二個方形，方形 A 的左上角座標(x1,y1)，寬和高為(w1,h1)；方形 B 的左上角座標(x2,y2)，寬和高為(w2,h2)，請設計判斷邏輯，以確認二個方形是否有任何重疊，有重疊回傳 true，否則為 false。（20 分）`,
+      answer: `**座標假設**：採螢幕座標（x 向右、y 向下），(x, y) 為左上角，所以方形 A 佔據的範圍是 x ∈ [x1, x1+w1]、y ∈ [y1, y1+h1]，方形 B 同理。
+
+**判斷邏輯：兩方形在 x 軸與 y 軸的投影「同時」重疊，才算重疊。**
+
+- **x 方向重疊**：A 的左邊在 B 的右邊之左，且 B 的左邊在 A 的右邊之左
+  \`x1 < x2 + w2\` 且 \`x2 < x1 + w1\`
+- **y 方向重疊**：A 的上邊在 B 的下邊之上，且 B 的上邊在 A 的下邊之上
+  \`y1 < y2 + h2\` 且 \`y2 < y1 + h1\`
+- 四個條件**全部成立**回傳 true，否則 false。
+
+**等價想法（反面思考）**：只要有一個「分離」情形成立，就不重疊：A 完全在 B 左邊（\`x1 + w1 <= x2\`）、右邊（\`x2 + w2 <= x1\`）、上方（\`y1 + h1 <= y2\`）或下方（\`y2 + h2 <= y1\`）。四種全不成立即重疊。
+
+**測試案例**
+
+| A (x1,y1,w1,h1) | B (x2,y2,w2,h2) | 結果 | 說明 |
+|---|---|---|---|
+| (0,0,4,3) | (2,1,4,3) | true | x、y 範圍都有交集 |
+| (0,0,2,2) | (5,0,2,2) | false | B 在 A 右側，x 方向分離 |
+| (0,0,2,2) | (2,0,2,2) | false | 只有邊相接，沒有面積重疊 |
+| (0,0,10,10) | (3,3,2,2) | true | B 完全在 A 內，也算重疊 |
+
+**補充**
+
+1. 若題目把「邊相接」也視為重疊，把所有 \`<\` 改成 \`<=\` 即可。
+2. 若使用數學座標（y 向上），A 的 y 範圍是 [y1−h1, y1]，y 方向條件改為 \`y1 - h1 < y2\` 且 \`y2 - h2 < y1\`。
+3. 時間複雜度 O(1)，只做 4 次比較。`,
+      code: {
+        lang: "python",
+        text: `def is_overlap(x1, y1, w1, h1, x2, y2, w2, h2):
+    # 螢幕座標：x 向右、y 向下；(x, y) 為左上角
+    x_overlap = x1 < x2 + w2 and x2 < x1 + w1
+    y_overlap = y1 < y2 + h2 and y2 < y1 + h1
+    return x_overlap and y_overlap
+
+print(is_overlap(0, 0, 4, 3, 2, 1, 4, 3))    # True
+print(is_overlap(0, 0, 2, 2, 5, 0, 2, 2))    # False
+print(is_overlap(0, 0, 2, 2, 2, 0, 2, 2))    # False（邊相接）
+print(is_overlap(0, 0, 10, 10, 3, 3, 2, 2))  # True（包含）`
+      }
+    },
+    {
+      id: "cs-prog-115-3", no: "三", topic: "ds", topicName: "資料結構與演算法",
+      title: "Pascal 三角形遞迴（含記憶化）— pascal(4,2) 的呼叫堆疊與分支圖",
+      score: 25,
+      question: `以圖示法表示下列遞迴程式呼叫執行的過程，給定 n = 4，k = 2 來呼叫（即 pascal(4,2)）副程式，來求解最後回傳的結果，請依產生的堆疊並以分支圖示法來呈現此呼叫之過程。（25 分）
+（程式碼見詳解下方）`,
+      answer: `**函式在做什麼**
+
+pascal(n, k) 求巴斯卡三角形第 n 列第 k 個數，也就是組合數 C(n, k)。
+
+- 基底情況：\`k == 0\` 或 \`k == n\` → 回傳 1。
+- R 是全域字典，用來做**記憶化**：算過的 (n, k) 存進 R，下次遇到直接回傳（第 5～6 行），不再往下展開。
+- 其餘情況：\`R[(n,k)] = pascal(n-1, k-1) + pascal(n-1, k)\`，Python 由左到右計算，先算左邊再算右邊。
+
+**分支圖（呼叫樹，節點標示 n,k）**
+
+\`\`\`tree
+{"v":"4,2","t":"accent",
+ "l":{"v":"3,1","t":"blue",
+   "l":{"v":"2,0","t":"gold"},
+   "r":{"v":"2,1","t":"blue",
+     "l":{"v":"1,0","t":"gold"},
+     "r":{"v":"1,1","t":"gold"}}},
+ "r":{"v":"3,2","t":"blue",
+   "l":{"v":"2,1","t":"dim"},
+   "r":{"v":"2,2","t":"gold"}}}
+\`\`\`
+
+圖例：金色＝基底情況（回傳 1）；藍色＝需要計算的節點；灰色＝命中記憶表 R，直接回傳 2、不再展開；左分支是 pascal(n-1, k-1)，右分支是 pascal(n-1, k)。
+
+**呼叫與回傳過程**
+
+\`\`\`
+pascal(4,2)
+├─ pascal(3,1)
+│   ├─ pascal(2,0) → 1            （k == 0）
+│   └─ pascal(2,1)
+│       ├─ pascal(1,0) → 1        （k == 0）
+│       ├─ pascal(1,1) → 1        （k == n）
+│       └─ R[(2,1)] = 1+1 = 2  → 回傳 2
+│   R[(3,1)] = 1+2 = 3  → 回傳 3
+└─ pascal(3,2)
+    ├─ pascal(2,1) → 2            （命中 R，不再展開）
+    ├─ pascal(2,2) → 1            （k == n）
+    └─ R[(3,2)] = 2+1 = 3  → 回傳 3
+R[(4,2)] = 3+3 = 6  → 回傳 6
+\`\`\`
+
+**呼叫堆疊（stack）變化**
+
+| 步驟 | 堆疊（底 → 頂） | 動作 |
+|---|---|---|
+| 1 | (4,2) | 呼叫 pascal(4,2)，先算左邊的 pascal(3,1) |
+| 2 | (4,2) → (3,1) | 先算 pascal(2,0) |
+| 3 | (4,2) → (3,1) → (2,0) | k == 0，回傳 1，彈出 |
+| 4 | (4,2) → (3,1) → (2,1) | 呼叫 pascal(2,1) |
+| 5 | (4,2) → (3,1) → (2,1) → (1,0) | k == 0，回傳 1，彈出 |
+| 6 | (4,2) → (3,1) → (2,1) → (1,1) | k == n，回傳 1，彈出 |
+| 7 | (4,2) → (3,1) → (2,1) | R[(2,1)] = 2，回傳 2，彈出 |
+| 8 | (4,2) → (3,1) | R[(3,1)] = 1+2 = 3，回傳 3，彈出 |
+| 9 | (4,2) → (3,2) | 呼叫 pascal(3,2) |
+| 10 | (4,2) → (3,2) → (2,1) | (2,1) 已在 R，**直接回傳 2**，彈出 |
+| 11 | (4,2) → (3,2) → (2,2) | k == n，回傳 1，彈出 |
+| 12 | (4,2) → (3,2) | R[(3,2)] = 2+1 = 3，回傳 3，彈出 |
+| 13 | (4,2) | R[(4,2)] = 3+3 = 6，回傳 6，彈出 |
+
+**最後結果**
+
+- pascal(4, 2) 回傳 **6**（即 C(4,2) = 6）。
+- 執行結束時 R = {(2,1): 2, (3,1): 3, (3,2): 3, (4,2): 6}。
+- 實際呼叫 **9 次**，堆疊最深 **4 層**（(4,2) → (3,1) → (2,1) → (1,0)）。
+- 若沒有 R，(2,1) 的子樹會被算兩次，總共 11 次呼叫；記憶化把重複的子問題省掉。`,
+      code: {
+        lang: "python",
+        text: `R = {}
+def pascal(n, k):
+    if k == 0 or k == n:
+        return 1
+    if (n, k) in R:
+        return R[(n, k)]
+    R[(n, k)] = pascal(n-1, k-1) + pascal(n-1, k)
+    return R[(n, k)]
+
+print(pascal(4, 2))   # 6`
+      }
+    },
+    {
+      id: "cs-prog-115-4", no: "四", topic: "prog", topicName: "程式設計實作",
+      title: "零知識證明 — 兩位富翁比較財富（二維陣列標記法）虛擬碼",
+      score: 25,
+      figure: "<svg viewBox='0 0 394 110' xmlns='http://www.w3.org/2000/svg' style='max-width:400px;width:100%;height:auto;display:block;background:#fffdf8;border:1px solid #d8d0bf;border-radius:6px;font-family:sans-serif'><rect x='10' y='10' width='54' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='37' y='30.4' font-size='15' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  ></text><rect x='64' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='84' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >1</text><rect x='104' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='124' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >2</text><rect x='144' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='164' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >3</text><rect x='184' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='204' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >4</text><rect x='224' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='244' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >5</text><rect x='264' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='284' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >6</text><rect x='304' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='324' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >7</text><rect x='344' y='10' width='40' height='30' fill='#e8eef3' stroke='#1a1f2c' stroke-width='1.5'/><text x='364' y='30' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >…</text><rect x='10' y='40' width='54' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='37' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >張三</text><rect x='64' y='40' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='84' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='104' y='40' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='124' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='144' y='40' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='164' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='184' y='40' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='204' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='224' y='40' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='244' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >-</text><rect x='264' y='40' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='284' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >-</text><rect x='304' y='40' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='324' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >-</text><rect x='344' y='40' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='364' y='60' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >…</text><rect x='10' y='70' width='54' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='37' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >李四</text><rect x='64' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='84' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='104' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='124' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='144' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='164' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='184' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='204' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='224' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='244' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='264' y='70' width='40' height='30' fill='#f3e3c8' stroke='#1a1f2c' stroke-width='1.5'/><text x='284' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >T</text><rect x='304' y='70' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='324' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >-</text><rect x='344' y='70' width='40' height='30' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.5'/><text x='364' y='90' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >…</text></svg>",
+      question: `二位富翁張三和李四比較誰較有錢，為保有隱私，互不直接說出財富金額，依此設定一個零知識證明程式，給定二維陣列分別標記二富翁所擁有的財富，假設一個陣列序號代表所擁有資產的一個單位（如：1 千萬），下表所示張三擁有 4 千萬，則分別標記 1 到 4 為 T；李四擁有 6 千萬，則分別標記 1 到 6 為 T。依此，於檢視誰比較有錢時，張三只能檢視李四第 4 個陣列格，李四只能檢視張三第 6 個陣列格，若有檢視到標記 T，則可以確認對方擁有的財富等同自己或在自己之上，反之則反。
+
+請設計一虛擬碼程式以分別讓二位富翁運用此程式，來驗證是否比對方有錢。（25 分）`,
+      answer: `**設計想法**
+
+用一個二維陣列表示財富：每位富翁一列，第 i 格是 \`T\` 表示「我的財富至少有 i 個單位」，\`-\` 表示沒有。財富是 w 的人，第 1 到第 w 格是 \`T\`，其餘是 \`-\`。
+
+每個人只能做**一次查看**：看「對方那一列」中、位置等於「自己財富」的那一格。
+
+- 若看到 \`T\`：對方在這一格也是 T，代表對方財富 ≥ 自己。
+- 若看到 \`-\`：對方連這一格都沒有，代表對方財富 < 自己。
+
+因為只看一格，每人只得到 **1 個位元**的比較資訊，無法得知對方的實際金額，這就是「零知識」的精神：只證明比較結果，不洩漏數值。
+
+**以題目數值驗證**
+
+- 張三財富 4，李四財富 6。
+- 張三看李四第 4 格：李四 1～6 格都是 T，所以看到 **T** → 李四 ≥ 張三。
+- 李四看張三第 6 格：張三只有 1～4 格是 T，第 6 格是 \`-\`，所以看到 **-** → 張三 < 李四。
+- 兩個結果合起來：**李四比張三有錢**。雙方都不曾看到對方的確切金額。
+
+**兩人查看結果與結論**
+
+| 張三看李四[自己財富] | 李四看張三[自己財富] | 結論 |
+|---|---|---|
+| T | T | 兩人財富相等 |
+| T | - | 李四較有錢 |
+| - | T | 張三較有錢 |
+| - | - | 不可能發生（會推出彼此都比對方少），代表資料不一致 |
+
+**說明與限制**
+
+1. 這是題目設定的簡化模型：假設兩列陣列都誠實標記。真實的零知識證明還需密碼學承諾（commitment）等機制，防止有人作弊。
+2. 查看次數與資料量：每人只讀 1 格，時間複雜度 O(1)；建立陣列需 O(N)，N 為財富單位上限。`,
+      code: {
+        lang: "虛擬碼",
+        text: `# board[P][i]：P 的第 i 格。'T' 表示「P 的財富 >= i 個單位」，'-' 表示未達
+INIT(P, wealth):                    # 只在 P 自己這端執行，wealth 是秘密
+    for i = 1 to N:
+        if i <= wealth: board[P][i] = 'T'
+        else:           board[P][i] = '-'
+
+PEEK(me, my_wealth, other):         # 規則：只能看對方的第 my_wealth 格
+    return board[other][my_wealth]  # 回傳 'T' 或 '-'，只洩漏 1 個位元
+
+COMPARE():
+    INIT(張三, 4);  INIT(李四, 6)
+    r1 = PEEK(張三, 4, 李四)         # 張三看「李四第 4 格」
+    r2 = PEEK(李四, 6, 張三)         # 李四看「張三第 6 格」
+
+    if r1 == 'T' and r2 == 'T': print("兩人財富相等")
+    elif r1 == 'T':             print("李四較有錢")    # 李四 >= 張三，且 張三 < 李四
+    elif r2 == 'T':             print("張三較有錢")    # 張三 >= 李四，且 李四 < 張三
+    else:                       print("矛盾：資料不一致")`
+      }
+    }
+  ]
+},
 {
   year: "114", exam: "customs",
   subject: "程式設計概要", totalScore: 100, timeLimit: "90分鐘",
@@ -2460,6 +2736,7 @@ int main() {
       id: "cs-prog-109-1", no: "一", topic: "prog", topicName: "程式設計實作",
       title: "電動車充電站選址（流程圖 + C/C++ 實作）",
       score: 30,
+      figure: "<div style='overflow-x:auto'><svg viewBox='0 0 1020 668' xmlns='http://www.w3.org/2000/svg' style='max-width:1020px;width:100%;min-width:760px;height:auto;display:block;background:#fffdf8;border:1px solid #d8d0bf;border-radius:6px;font-family:sans-serif'><defs><marker id='arf' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto'><path d='M0 0 L10 5 L0 10 z' fill='#1a1f2c'/></marker></defs><rect x='86' y='33' width='168' height='84' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='62' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >最短距離 = 無限大</text><text x='170' y='80' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >中央位置 = 0</text><text x='170' y='98' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >宣告 Parking [ ]</text><polygon points='106,144 250,144 234,200 90,200' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='168' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >輸入停車</text><text x='170' y='186' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >格數 N</text><rect x='95' y='237' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='267' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >設 I 為 0</text><polygon points='170,334 255,372 170,410 85,372' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='377' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >I < N</text><polygon points='106,456 250,456 234,508 90,508' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='478' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >輸入</text><text x='170' y='496' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >Parking [I]</text><rect x='95' y='541' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='170' y='571' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >將 I 加 1</text><polyline points='170,117 170,144' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='170,200 170,237' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='170,287 170,334' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='170,410 170,456' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='170,508 170,541' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='170,591 170,630 40,630 40,372 85,372' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='255,372 320,372 320,30 500,30 500,59' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><text x='188' y='436' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >True</text><text x='262' y='362' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >False</text><rect x='425' y='59' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='89' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >設 I 為 0</text><polygon points='500,158 585,196 500,234 415,196' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='201' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >I < N</text><rect x='420' y='269' width='160' height='62' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='296' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >J = 0</text><text x='500' y='314' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >總距離 = 0</text><polygon points='500,360 585,398 500,436 415,398' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='403' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >J < N</text><rect x='425' y='483' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='513' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >總距離 = ...</text><rect x='425' y='567' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='500' y='597' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >將 J 加 1</text><polyline points='500,109 500,158' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='500,234 500,269' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='500,331 500,360' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='500,436 500,483' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='500,533 500,567' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='500,617 500,650 372,650 372,398 415,398' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='585,398 710,398 710,30 840,30 840,70' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='585,196 630,196 630,548 840,548 840,572' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><text x='518' y='254' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >True</text><text x='590' y='186' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >False</text><text x='518' y='460' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >True</text><text x='590' y='388' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >False</text><polygon points='840,70 950,112 840,154 730,112' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='840' y='108' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >總距離 <</text><text x='840' y='126' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >目前最短距離</text><rect x='765' y='220' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='840' y='250' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >最短距離 = ...</text><rect x='765' y='305' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='840' y='335' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >中央位置 = ...</text><rect x='765' y='411' width='150' height='50' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='840' y='441' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >將 I 加 1</text><polygon points='768,572 928,572 912,628 752,628' fill='#fffdf8' stroke='#1a1f2c' stroke-width='1.8'/><text x='840' y='596' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >輸入最佳</text><text x='840' y='614' font-size='14' text-anchor='middle' font-weight='normal' fill='#1a1f2c'  >中央位置</text><polyline points='840,154 840,220' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='840,270 840,305' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='840,355 840,411' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='950,112 985,112 985,392 846,392' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><polyline points='840,461 840,520 668,520 668,135 506,135' fill='none' stroke='#1a1f2c' stroke-width='1.6' stroke-linejoin='round' marker-end='url(#arf)'/><text x='858' y='190' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >True</text><text x='958' y='102' font-size='13' text-anchor='start' font-weight='normal' fill='#444b5c'  >False</text></svg></div>",
       question: `智慧型新社區內，住戶都擁有電動車，街道上有許多電動車停車格。為避免浪費，社區內要擴大其中一個停車格用來設立共用快速充電站。經過投票，充電站要設在最「中央」的位置，也就是離所有停車格平均距離最短的位置。
 (一) 若輸入資料為 15 個停車格，編號分別為 5, 5, 5, 12, 18, 18, 25, 25, 31, 31, 40, 45, 45, 45, 45，請計算並說明該以那個編號的停車格來擴大改建為快速充電站？（5 分）
 (二) 流程圖三個空白框（總距離=…, 最短距離=…, 中央位置=…）正確的運算式為何？（15 分）
@@ -2485,74 +2762,89 @@ int main() {
 
 **(二) 流程圖三個運算式（15 分）**
 
-對每個「候選位置 c」（編號集合中的某一個或所有 0~MaxNumber 的整數），計算總距離並取最小。
+**先讀懂流程圖**（如上圖）：
+
+- **第一欄**：初始化「最短距離 = 無限大、中央位置 = 0」，輸入停車格數 N，再用迴圈把 N 個停車格編號讀進 Parking[]。
+- **第二欄**：外層迴圈用 I 逐一取出每個停車格當作**候選的充電站**；內層迴圈用 J 掃過全部停車格，把每個 Parking[J] 與候選位置的距離累加到「總距離」。
+- **第三欄**：內層迴圈結束後，若「總距離 < 目前最短距離」，就更新「最短距離」與「中央位置」；接著 I 加 1，回到外層迴圈。
+- 外層迴圈結束（I ≥ N）後，輸出「中央位置」。
 
 | 框 | 正確運算式 |
 |---|---|
-| **總距離 = …** | \`總距離 = 總距離 + abs(parking[i] - c)\` 或 \`+ |parking[i] - c|\`（在內層迴圈累加當前 c 與每個 parking 的絕對距離） |
-| **最短距離 = …** | \`最短距離 = 總距離\`（當「總距離 &lt; 最短距離」時才更新） |
-| **中央位置 = …** | \`中央位置 = c\`（記下對應的候選位置 c） |
+| **總距離 = …** | \`總距離 = 總距離 + abs(Parking[J] - Parking[I])\`（累加候選位置 Parking[I] 到每個停車格 Parking[J] 的距離） |
+| **最短距離 = …** | \`最短距離 = 總距離\` |
+| **中央位置 = …** | \`中央位置 = Parking[I]\` |
+
+**易錯點**：「中央位置」要記的是停車格的**編號** Parking[I]，不是迴圈索引 I；「總距離」是累加（用 +），不是直接覆蓋。
 
 **(三) C/C++ 高效實作（10 分）**
 
-詳見下方程式碼。兩個版本：
-1. **直觀版** O(n²)：對所有可能位置嘗試。
-2. **高效版** O(n log n)：先排序找中位數，直接取中央位置（理論最佳）。`,
+詳見下方程式碼，兩個版本：
+
+1. **版本一（照流程圖）** O(N²)：候選位置就是每個停車格，與流程圖逐框對應。
+2. **版本二（高效版）** O(N log N)：到所有點「絕對距離總和」最小的位置就是**中位數**，所以排序後直接取中間那一個即可。偶數筆資料時，中間兩個點的總距離相同，取任一個皆可。`,
       code: {
         lang: "c",
         text: `// 程式語言：C
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
-int abs_int(int x) { return x < 0 ? -x : x; }
+#define MAX_N 1000
 
-// ===== 直觀版：O(n × m)，m = 候選位置數量 =====
-int find_station_brute(int parking[], int n, int *out_distance) {
-    int max_id = 0;
-    for (int i = 0; i < n; i++)
-        if (parking[i] > max_id) max_id = parking[i];
-
-    int best_pos = 0, min_d = -1;
-    for (int c = 0; c <= max_id; c++) {
-        int total = 0;
-        for (int i = 0; i < n; i++)
-            total += abs_int(parking[i] - c);
-        if (min_d == -1 || total < min_d) {
-            min_d = total;
-            best_pos = c;
+/* 版本一：照流程圖，O(N^2) */
+int find_station(const int parking[], int n, int *best_total) {
+    int shortest = INT_MAX;                 /* 最短距離 = 無限大 */
+    int center = 0;                         /* 中央位置 = 0 */
+    for (int i = 0; i < n; i++) {           /* 每個停車格都當作候選位置 */
+        int total = 0;                      /* 總距離 = 0 */
+        for (int j = 0; j < n; j++)
+            total += abs(parking[j] - parking[i]);   /* 總距離 = 總距離 + |Parking[J] - Parking[I]| */
+        if (total < shortest) {             /* 總距離 < 目前最短距離 */
+            shortest = total;               /* 最短距離 = 總距離 */
+            center = parking[i];            /* 中央位置 = Parking[I] */
         }
     }
-    *out_distance = min_d;
-    return best_pos;
+    *best_total = shortest;
+    return center;
 }
 
-// ===== 高效版：O(n log n) 排序後取中位數 =====
-int cmp(const void *a, const void *b) { return *(int*)a - *(int*)b; }
+/* 版本二：高效版，O(N log N)：排序後取中位數 */
+static int cmp_int(const void *a, const void *b) {
+    int x = *(const int *)a, y = *(const int *)b;
+    return (x > y) - (x < y);
+}
 
-int find_station_efficient(int parking[], int n) {
-    int *tmp = (int*)malloc(n * sizeof(int));
+int find_station_fast(const int parking[], int n) {
+    int *tmp = (int *)malloc(n * sizeof(int));
+    if (!tmp) return -1;
     for (int i = 0; i < n; i++) tmp[i] = parking[i];
-    qsort(tmp, n, sizeof(int), cmp);
-    int median = tmp[n / 2];   // 奇數筆取中間；偶數筆 n/2 與 n/2-1 皆為最佳
+    qsort(tmp, n, sizeof(int), cmp_int);
+    int median = tmp[n / 2];     /* 偶數筆時 tmp[n/2-1] 與 tmp[n/2] 的總距離相同，取任一個皆可 */
     free(tmp);
     return median;
 }
 
-int main() {
-    int parking[] = {5, 5, 5, 12, 18, 18, 25, 25, 31, 31, 40, 45, 45, 45, 45};
-    int n = sizeof(parking) / sizeof(parking[0]);
+int main(void) {
+    int n, parking[MAX_N];
+    if (scanf("%d", &n) != 1 || n <= 0 || n > MAX_N) return 1;     /* 輸入停車格數 N */
+    for (int i = 0; i < n; i++)
+        if (scanf("%d", &parking[i]) != 1) return 1;                 /* 輸入 Parking[I] */
 
-    int dist;
-    int p1 = find_station_brute(parking, n, &dist);
-    int p2 = find_station_efficient(parking, n);
-
-    printf("Brute force:    位置=%d, 總距離=%d\\n", p1, dist);
-    printf("Efficient(中位):位置=%d\\n", p2);
+    int total;
+    int c1 = find_station(parking, n, &total);
+    int c2 = find_station_fast(parking, n);
+    printf("流程圖版: 位置=%d, 總距離=%d\\n", c1, total);
+    printf("中位數版: 位置=%d\\n", c2);
     return 0;
 }
-/* 輸出：
-   Brute force:    位置=25, 總距離=194
-   Efficient(中位):位置=25
+
+/* 範例輸入：
+15
+5 5 5 12 18 18 25 25 31 31 40 45 45 45 45
+   輸出：
+流程圖版: 位置=25, 總距離=194
+中位數版: 位置=25
 */`
       }
     },
@@ -8597,7 +8889,8 @@ function parseTerms(raw) {
 function stripTags(s) {
   return String(s == null ? '' : s)
     .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/?(?:strong|code|sub|sup|u|em|b|i)\s*>/gi, '');
+    .replace(/<\/?(?:strong|code|sub|sup|u|em|b|i|pre)(?:\s[^>]*)?>/gi, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 /* 每個關鍵字都必須出現（AND）；總分 = 各關鍵字命中的最高權重欄位之和 */
 function scoreFields(terms, fields) {
@@ -9108,6 +9401,7 @@ function questionCard(q, forceOpen) {
     <div class="q-body">
       <span class="section-label q">考題</span>
       <div class="q-question">${escapeHtml(q.question).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')}</div>
+      ${q.figure ? `<div class="q-figure" style="margin:.7rem 0">${q.figure}</div>` : ''}
       <span class="section-label a">詳解</span>
       <div class="q-answer">${renderMarkdown(q.answer)}</div>
       ${q.code ? codeBlockHtml(q.code) : ''}
