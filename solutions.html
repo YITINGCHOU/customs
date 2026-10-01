@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>關務人員四等考試｜資訊處理・程式設計概要 考古題詳解</title>
-<style>/* ===== 經濟部考古題複習系統 — 樣式 ===== */
+<style>/* ===== 關務四等考古題複習系統 — 樣式 ===== */
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -512,6 +512,78 @@ body {
   .q-answer table { font-size: .78rem; }
   .q-answer pre, .code-block pre { font-size: .74rem; }
 }
+
+/* ===== 搜尋強化 / 跳轉面板（新增） ===== */
+.search-box input { padding-right: 2.2rem; }
+.search-clear {
+  position: absolute; right: .35rem; top: 50%; transform: translateY(-50%);
+  border: none; background: transparent; color: var(--ink-soft);
+  font-size: 1.05rem; line-height: 1; cursor: pointer;
+  padding: .25rem .45rem; border-radius: 50%; display: none;
+}
+.search-clear.show { display: block; }
+.search-clear:hover { background: var(--paper-warm); }
+.search-info {
+  max-width: 1100px; margin: .55rem auto 0;
+  font-size: .8rem; color: var(--ink-soft); display: none;
+}
+.search-info.show { display: block; }
+.search-info b { color: var(--accent); }
+mark.hl {
+  background: rgba(255, 208, 70, .6); color: inherit;
+  padding: 0 .06em; border-radius: 2px;
+}
+
+.jump-fab {
+  position: fixed; right: 1.5rem; bottom: 5.3rem; z-index: 90;
+  height: 2.6rem; padding: 0 1rem; border: none; border-radius: 999px;
+  background: var(--accent-2); color: #fff; cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif; font-size: .88rem; font-weight: 700;
+  box-shadow: 0 4px 12px var(--shadow); display: none;
+}
+.jump-fab.show { display: block; }
+.jump-fab:hover { background: var(--ink); }
+.jump-panel {
+  position: fixed; right: 1.5rem; bottom: calc(5.3rem + 3.2rem); z-index: 95;
+  width: min(360px, calc(100vw - 2.4rem)); max-height: 60vh; overflow: auto;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(40,32,20,.25);
+}
+.jump-panel[hidden] { display: none; }
+.jump-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .7rem .9rem; border-bottom: 1px solid var(--line);
+  font-family: 'Noto Serif TC', serif; font-weight: 700; color: var(--ink);
+  position: sticky; top: 0; background: var(--card);
+}
+.jump-head button {
+  border: none; background: transparent; cursor: pointer;
+  font-size: 1rem; color: var(--ink-soft);
+}
+.jump-grid {
+  display: grid; gap: .45rem; padding: .8rem;
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+}
+.jump-item {
+  display: flex; flex-direction: column; align-items: center; gap: .1rem;
+  padding: .45rem .3rem; border: 1.5px solid var(--line); border-radius: 8px;
+  background: var(--paper); color: var(--ink); cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif; line-height: 1.25;
+}
+.jump-item b { font-size: .95rem; }
+.jump-item small { font-size: .68rem; color: var(--ink-soft); }
+.jump-item:hover { border-color: var(--accent-2); background: #fff; }
+.jump-item.on { border-color: var(--accent-2); box-shadow: 0 0 0 1px var(--accent-2) inset; }
+.jump-item.done small { color: #2d6a4f; font-weight: 700; }
+.jump-foot {
+  display: flex; gap: .5rem; padding: 0 .8rem .8rem;
+}
+.jump-foot button {
+  flex: 1; padding: .45rem; border: 1.5px solid var(--ink-soft); border-radius: 8px;
+  background: var(--card); color: var(--ink-soft); cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif; font-size: .8rem;
+}
+.jump-foot button:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 </style>
 </head>
 <body>
@@ -536,16 +608,24 @@ body {
       <button data-mode="topic" onclick="setMode('topic')">依主題分類</button>
     </div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="搜尋題目、關鍵字、程式碼…">
+      <input type="text" id="searchInput" autocomplete="off" placeholder="搜尋（多個關鍵字用空格分開）">
+      <button class="search-clear" id="searchClear" aria-label="清除搜尋">✕</button>
     </div>
     <button class="btn-expand" id="btnExpand" onclick="toggleExpandAll()">全部展開</button>
   </div>
   <div class="filter-row" id="filterRow"></div>
+  <div class="search-info" id="searchInfo"></div>
 </div>
 
 <main class="wrap">
   <div id="content"></div>
 </main>
+
+<button class="jump-fab" id="jumpFab" onclick="toggleJump()" aria-label="跳轉">📍 跳轉</button>
+<div class="jump-panel" id="jumpPanel" hidden>
+  <div class="jump-head"><span id="jumpTitle">跳到年度</span><button onclick="toggleJump(false)" aria-label="關閉">✕</button></div>
+  <div class="jump-grid" id="jumpGrid"></div>
+</div>
 
 <button class="to-top" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
@@ -8467,7 +8547,7 @@ C++ 中為 swap 設計，<u>reference 更自然</u>，是首選。
 ];
 
 </script>
-<script>/* ===== 經濟部考古題複習系統 — 應用邏輯 ===== */
+<script>/* ===== 關務四等考古題複習系統 — 應用邏輯 ===== */
 
 // 合併所有資料（依年度由新到舊）
 const ALL_YEARS = [
@@ -8492,7 +8572,187 @@ ALL_YEARS.forEach(y => {
   });
 });
 
-let state = { mode: 'year', topic: 'all', search: '' };
+let state = { mode: 'year', topic: 'all', search: '', terms: [] };
+const openIds = new Set();   // 使用者展開的題目卡（重新渲染後仍保留）
+
+
+/* ============================================================
+   搜尋 / 跳轉 / 換行 共用工具（新增）
+   ============================================================ */
+const BREAK_AT_PERIOD = true;   // 解析遇到「。」自動換行；不想要就改成 false
+
+/* 全形→半形、英文轉小寫；逐字處理，確保處理後長度不變（highlight 才對得準） */
+function normText(s) {
+  let out = '';
+  for (const ch of String(s)) {
+    const n = ch.normalize('NFKC').toLowerCase();
+    out += (n.length === ch.length) ? n : ch;
+  }
+  return out;
+}
+function parseTerms(raw) {
+  return [...new Set(normText(raw).split(/\s+/).filter(Boolean))];
+}
+/* 去掉資料裡用來排版的 HTML 標籤，避免搜 "br"、"code"、"strong" 時誤中 */
+function stripTags(s) {
+  return String(s == null ? '' : s)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/?(?:strong|code|sub|sup|u|em|b|i)\s*>/gi, '');
+}
+/* 每個關鍵字都必須出現（AND）；總分 = 各關鍵字命中的最高權重欄位之和 */
+function scoreFields(terms, fields) {
+  let total = 0;
+  for (const term of terms) {
+    let best = 0;
+    for (const f of fields) if (f.w > best && f.t.includes(term)) best = f.w;
+    if (!best) return 0;
+    total += best;
+  }
+  return total;
+}
+/* 在已渲染的 DOM 文字節點上標黃（不動 HTML 結構） */
+function highlightIn(root, terms) {
+  if (!root || !terms.length) return;
+  const nodes = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = walker.nextNode())) {
+    if (!n.nodeValue.trim()) continue;
+    const p = n.parentNode;
+    if (p && p.closest && p.closest('svg, button, mark')) continue;
+    nodes.push(n);
+  }
+  nodes.forEach(node => {
+    const text = node.nodeValue, low = normText(text);
+    const ranges = [];
+    terms.forEach(t => {
+      let i = low.indexOf(t);
+      while (i !== -1) { ranges.push([i, i + t.length]); i = low.indexOf(t, i + t.length); }
+    });
+    if (!ranges.length) return;
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [ranges[0].slice()];
+    for (let k = 1; k < ranges.length; k++) {
+      const last = merged[merged.length - 1];
+      if (ranges[k][0] <= last[1]) last[1] = Math.max(last[1], ranges[k][1]);
+      else merged.push(ranges[k].slice());
+    }
+    const frag = document.createDocumentFragment();
+    let pos = 0;
+    merged.forEach(([s, e]) => {
+      if (s > pos) frag.appendChild(document.createTextNode(text.slice(pos, s)));
+      const m = document.createElement('mark');
+      m.className = 'hl';
+      m.textContent = text.slice(s, e);
+      frag.appendChild(m);
+      pos = e;
+    });
+    if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+/* 解析換行：遇到「。」就換行（已有 <br>、句尾、或後面接」』）” 的不重複換） */
+function breakSentences(s) {
+  if (!BREAK_AT_PERIOD) return s;
+  return String(s).replace(
+    /。(?!(?:<\/[a-z]+>)*(?:\s*<br\s*\/?>|\s*$|[」』）)”"']))/gi,
+    '。<br>'
+  );
+}
+
+/* ---------- 搜尋框綁定（支援中文輸入法，組字中不觸發搜尋） ---------- */
+function applySearch() {
+  const input = document.getElementById('searchInput');
+  state.search = input.value.trim();
+  state.terms = parseTerms(state.search);
+  render();
+}
+function clearSearch() {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  applySearch();
+  input.focus();
+}
+function bindSearch() {
+  const input = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('searchClear');
+  let timer, composing = false;
+  const schedule = () => { clearTimeout(timer); timer = setTimeout(applySearch, 150); };
+  input.addEventListener('compositionstart', () => { composing = true; });
+  input.addEventListener('compositionend', () => { composing = false; schedule(); });
+  input.addEventListener('input', () => {
+    clearBtn.classList.toggle('show', input.value.length > 0);
+    if (!composing) schedule();
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') clearSearch(); });
+  clearBtn.addEventListener('click', clearSearch);
+}
+
+/* ---------- 跳轉面板 ---------- */
+let JUMP_ITEMS = [];
+let JUMP_TITLE = '跳到年度';
+function buildJump() {
+  const fab = document.getElementById('jumpFab');
+  const grid = document.getElementById('jumpGrid');
+  document.getElementById('jumpTitle').textContent = JUMP_TITLE;
+  fab.classList.toggle('show', JUMP_ITEMS.length > 0);
+  grid.innerHTML = JUMP_ITEMS.map(it =>
+    `<button class="jump-item${it.done ? ' done' : ''}${it.open ? ' on' : ''}" onclick="jumpTo('${it.key}')">
+       <b>${it.label}</b><small>${it.sub || ''}</small></button>`
+  ).join('');
+  if (!JUMP_ITEMS.length) toggleJump(false);
+}
+function toggleJump(force) {
+  const p = document.getElementById('jumpPanel');
+  p.hidden = (typeof force === 'boolean') ? !force : !p.hidden;
+}
+function scrollToGroup(key) {
+  const el = document.getElementById('g-' + key);
+  if (!el) return;
+  const ctrl = document.querySelector('.controls');
+  const top = el.getBoundingClientRect().top + window.scrollY - (ctrl ? ctrl.offsetHeight : 0) - 10;
+  const root = document.documentElement;
+  root.style.scrollBehavior = 'auto';          // 跳轉用瞬間定位，避免長距離捲動動畫
+  window.scrollTo(0, Math.max(0, top));
+  root.style.scrollBehavior = '';
+}
+document.addEventListener('click', e => {
+  const p = document.getElementById('jumpPanel');
+  if (p && !p.hidden && !p.contains(e.target) && !e.target.closest('#jumpFab')) p.hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleJump(false); });
+
+/* ---------- 搜尋欄位索引 ---------- */
+function plainAnswer(md) {
+  return String(md || '')
+    .replace(/```(?:htmldiagram|tree)\n[\s\S]*?```/g, ' ')   // 圖表/樹狀圖的 HTML、JSON 不列入搜尋
+    .replace(/^#{1,4}\s+/gm, '')
+    .replace(/\*\*|`/g, '')
+    .replace(/\|/g, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/?(?:strong|code|sub|sup|u|em|b|i)\s*>/gi, '');
+}
+function searchIndex(q) {
+  return q._ix || (q._ix = {
+    title: normText(stripTags(q.title)),
+    ques:  normText(stripTags(q.question)),
+    ans:   normText(plainAnswer(q.answer)),
+    code:  normText(q.code ? q.code.text : ''),
+    meta:  normText(q.year + ' ' + q.year + '年 第' + q.no + '題 ' +
+                    ((TOPIC_INFO[q.topic] || {}).name || '') + ' ' + (q.part || ''))
+  });
+}
+function searchFields(q) {
+  const ix = searchIndex(q);
+  return [{ t: ix.title, w: 10 }, { t: ix.ques, w: 6 }, { t: ix.ans, w: 3 },
+          { t: ix.code, w: 2 }, { t: ix.meta, w: 1 }];
+}
+function bodyHit(q) {
+  const ix = searchIndex(q);
+  return state.terms.some(t => ix.ques.includes(t) || ix.ans.includes(t) || ix.code.includes(t));
+}
 
 /* ---------- 輕量 Markdown 渲染 ---------- */
 function escapeHtml(s) {
@@ -8564,7 +8824,7 @@ function renderMarkdown(md) {
         items.push(lines[i].replace(/^\s*[-*]\s+/, ''));
         i++;
       }
-      html += '<ul>' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ul>';
+      html += '<ul>' + items.map(it => `<li>${breakSentences(inline(it))}</li>`).join('') + '</ul>';
       continue;
     }
     // 有序清單
@@ -8574,7 +8834,7 @@ function renderMarkdown(md) {
         items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
         i++;
       }
-      html += '<ol>' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+      html += '<ol>' + items.map(it => `<li>${breakSentences(inline(it))}</li>`).join('') + '</ol>';
       continue;
     }
 
@@ -8592,18 +8852,22 @@ function renderMarkdown(md) {
              /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i+1]))) {
       para.push(lines[i]); i++;
     }
-    html += `<p>${para.map(inline).join('<br>')}</p>`;
+    html += `<p>${para.map(l => breakSentences(inline(l))).join('<br>')}</p>`;
   }
   return html;
 }
 
 // 行內語法：**粗體**、`code`、<u>底線</u>
 function inline(s) {
+  // 先抽出 `code` 片段保護起來，其餘文字才做標籤還原與粗體
+  const codes = [];
+  s = s.replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return '\u0001' + (codes.length - 1) + '\u0001'; });
   s = escapeHtml(s);
-  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // 還原資料中直接寫的白名單標籤（<u> 用於標示主鍵）
+  s = s.replace(/&lt;(\/?)(strong|code|sub|sup|u)&gt;/g, '<$1$2>');
+  s = s.replace(/&lt;br\s*\/?&gt;/g, '<br>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  // 還原 <u>...</u> 底線標籤（用於標示主鍵）
-  s = s.replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>');
+  s = s.replace(/\u0001(\d+)\u0001/g, (m, i) => '<code>' + escapeHtml(codes[+i]) + '</code>');
   return s;
 }
 
@@ -8824,9 +9088,10 @@ function codeBlockHtml(codeObj) {
 }
 
 /* ---------- 渲染題目卡 ---------- */
-function questionCard(q) {
+function questionCard(q, forceOpen) {
   const t = TOPIC_INFO[q.topic] || { name: q.topicName, cls: '' };
-  return `<div class="q-card ${t.cls}" data-id="${q.id}">
+  const isOpen = openIds.has(q.id) || !!forceOpen;
+  return `<div class="q-card ${t.cls}${isOpen ? ' open' : ''}" data-id="${q.id}">
     <div class="q-header" onclick="toggleCard(this)">
       <div class="q-no">${q.no}</div>
       <div class="q-headmain">
@@ -8852,34 +9117,63 @@ function questionCard(q) {
 
 /* ---------- 篩選 ---------- */
 function filterQuestions() {
-  return ALL_Q.filter(q => {
-    if (state.topic !== 'all' && q.topic !== state.topic) return false;
-    if (state.search) {
-      const s = state.search.toLowerCase();
-      const hay = (q.title + q.question + q.answer + q.year +
-                   (q.code ? q.code.text : '')).toLowerCase();
-      if (!hay.includes(s)) return false;
-    }
-    return true;
-  });
+  let list = ALL_Q.filter(q => state.topic === 'all' || q.topic === state.topic);
+  if (state.terms.length) {
+    // 多關鍵字 AND、全形半形統一、依相關度排序（標題 > 考題 > 詳解 > 程式碼）
+    list = list
+      .map((q, i) => ({ q, i, s: scoreFields(state.terms, searchFields(q)) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s || a.i - b.i)
+      .map(x => x.q);
+  }
+  return list;
 }
 
 /* ---------- 渲染主內容 ---------- */
+function updateSearchInfo(count, autoOpen) {
+  const el = document.getElementById('searchInfo');
+  if (!state.terms.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
+  let h = `找到 <b>${count}</b> 題 ‧ 依相關度排序`;
+  if (count > 30) h += ' ‧ 結果較多，已不自動展開詳解，可再加關鍵字縮小範圍';
+  else h += ' ‧ 詳解中有符合的題目已自動展開並標黃';
+  el.innerHTML = h;
+  el.classList.add('show');
+}
+
 function render() {
   const list = filterQuestions();
   const wrap = document.getElementById('content');
+  const searching = state.terms.length > 0;
+  const autoOpen = searching && list.length <= 30;
+  JUMP_ITEMS = [];
+  updateSearchInfo(list.length, autoOpen);
 
   if (list.length === 0) {
+    const msg = searching
+      ? `找不到符合「${escapeHtml(state.search)}」的題目。可改用較短的關鍵字；多個關鍵字請用空格分開。`
+      : '找不到符合條件的題目';
     wrap.innerHTML = `<div class="empty">
       <div class="big">📭</div>
-      <p>找不到符合條件的題目</p>
+      <p>${msg}</p>
     </div>`;
+    buildJump();
+    syncExpandBtn();
     return;
   }
 
   let html = '';
 
-  if (state.mode === 'year') {
+  if (searching) {
+    html += `<div class="group">
+      <div class="group-head">
+        <span class="g-badge">搜尋</span>
+        <span class="g-title">依相關度排序</span>
+        <span class="g-meta">共 ${list.length} 題</span>
+      </div>
+      ${list.map(q => questionCard(q, autoOpen && bodyHit(q))).join('')}
+    </div>`;
+  } else if (state.mode === 'year') {
+    JUMP_TITLE = '跳到年度';
     // 依年度分組
     const byYear = {};
     list.forEach(q => { (byYear[q.year] = byYear[q.year] || []).push(q); });
@@ -8888,7 +9182,8 @@ function render() {
       const qs = byYear[yr];
       const yObj = ALL_YEARS.find(y => y.year === yr);
       const totalScore = qs.reduce((s, q) => s + q.score, 0);
-      html += `<div class="group">
+      JUMP_ITEMS.push({ key: 'y' + yr, label: yr, sub: `${qs.length} 題` });
+      html += `<div class="group" id="g-y${yr}">
         <div class="group-head">
           <span class="g-badge">${yr} 年</span>
           <span class="g-title">${escapeHtml(yObj.subject)}</span>
@@ -8898,10 +9193,11 @@ function render() {
           </span>
         </div>
         ${yObj.note ? `<div class="group-note">※ ${escapeHtml(yObj.note)}</div>` : ''}
-        ${qs.map(questionCard).join('')}
+        ${qs.map(q => questionCard(q)).join('')}
       </div>`;
     });
   } else {
+    JUMP_TITLE = '跳到主題';
     // 依主題分組
     const byTopic = {};
     list.forEach(q => { (byTopic[q.topic] = byTopic[q.topic] || []).push(q); });
@@ -8911,23 +9207,35 @@ function render() {
       // 同主題內依年度新到舊、再依題號
       qs.sort((a, b) => Number(b.year) - Number(a.year));
       const t = TOPIC_INFO[tk];
-      html += `<div class="group">
+      JUMP_ITEMS.push({ key: 't' + tk, label: t.name, sub: `${qs.length} 題` });
+      html += `<div class="group" id="g-t${tk}">
         <div class="group-head">
           <span class="g-badge">${t.name}</span>
           <span class="g-title">歷年同類考題彙整</span>
           <span class="g-meta">共 ${qs.length} 題<br>跨 ${new Set(qs.map(q=>q.year)).size} 個年度</span>
         </div>
-        ${qs.map(questionCard).join('')}
+        ${qs.map(q => questionCard(q)).join('')}
       </div>`;
     });
   }
 
   wrap.innerHTML = html;
+  if (searching) highlightIn(wrap, state.terms);
+  buildJump();
+  syncExpandBtn();
+}
+
+function jumpTo(key) {
+  toggleJump(false);
+  scrollToGroup(key);
 }
 
 /* ---------- 互動 ---------- */
 function toggleCard(headerEl) {
-  headerEl.parentElement.classList.toggle('open');
+  const card = headerEl.parentElement;
+  const open = card.classList.toggle('open');
+  if (open) openIds.add(card.dataset.id); else openIds.delete(card.dataset.id);
+  syncExpandBtn();
 }
 
 function setMode(mode) {
@@ -8970,14 +9278,20 @@ function setTopic(topic) {
   render();
 }
 
-let expandedAll = false;
+/* 按鈕文字依「目前畫面上的卡片是否都已展開」決定，不再用獨立旗標 */
+function syncExpandBtn() {
+  const cards = [...document.querySelectorAll('.q-card')];
+  const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
+  document.getElementById('btnExpand').textContent = allOpen ? '全部收合' : '全部展開';
+}
 function toggleExpandAll() {
-  expandedAll = !expandedAll;
-  document.querySelectorAll('.q-card').forEach(c => {
-    c.classList.toggle('open', expandedAll);
+  const cards = [...document.querySelectorAll('.q-card')];
+  const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
+  cards.forEach(c => {
+    c.classList.toggle('open', !allOpen);
+    if (allOpen) openIds.delete(c.dataset.id); else openIds.add(c.dataset.id);
   });
-  document.getElementById('btnExpand').textContent =
-    expandedAll ? '全部收合' : '全部展開';
+  syncExpandBtn();
 }
 
 /* ---------- 初始化 ---------- */
@@ -8985,12 +9299,7 @@ function init() {
   updateStatBar();
   rebuildTopicChips();
 
-  // 搜尋
-  let timer;
-  document.getElementById('searchInput').addEventListener('input', e => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { state.search = e.target.value.trim(); render(); }, 200);
-  });
+  bindSearch();
 
   // 回頂部
   const toTop = document.getElementById('toTop');

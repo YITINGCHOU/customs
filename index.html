@@ -5,51 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的關務備考基地</title>
     <style>
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            margin: 0;
+            font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
             background-color: #f4f6f9;
-            padding: 50px 20px;
+            color: #1a1f2c;
+            padding: 48px 20px 64px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
+        .wrap { max-width: 720px; margin: 0 auto; }
+        h1 { text-align: center; color: #333; margin: 0 0 6px; }
+        .lead { text-align: center; color: #5a6275; font-size: 14px; margin: 0 0 36px; }
+
+        .level {
+            background: #fff;
+            border: 1px solid #dfe3ea;
+            border-radius: 12px;
+            padding: 20px 22px 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+        .level h2 { margin: 0 0 4px; font-size: 20px; }
+        .level .desc { margin: 0 0 16px; color: #5a6275; font-size: 13.5px; line-height: 1.6; }
+
+        .btn-row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
         .btn {
             display: block;
-            width: 250px;
-            padding: 15px 20px;
-            font-size: 18px;
-            color: white;
+            padding: 14px 18px;
+            color: #fff;
             text-decoration: none;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
-        .btn:hover {
-            transform: translateY(-3px);
-        }
+        .btn:hover { transform: translateY(-3px); }
+        .btn b { display: block; font-size: 17px; }
+        .btn small { display: block; margin-top: 3px; font-size: 12.5px; opacity: .9; }
+
         /* 刷題系統按鈕顏色（藍色） */
         .btn-quiz { background-color: #007bff; }
         /* 詳解按鈕顏色（綠色） */
         .btn-solution { background-color: #28a745; }
+
+        /* 尚未上線 */
+        .btn-soon {
+            background: #e6e9ef; color: #7b8498; box-shadow: none;
+            cursor: default; pointer-events: none;
+        }
+        .tag-soon {
+            display: inline-block; margin-left: 8px; padding: 1px 8px;
+            font-size: 12px; font-weight: 500; border-radius: 999px;
+            background: #fff3cd; color: #8a6d1d; vertical-align: middle;
+        }
     </style>
 </head>
 <body>
+<div class="wrap">
 
     <h1>📚 關務特考 準備中心</h1>
+    <p class="lead">公務人員特種考試關務人員考試 ‧ 資訊處理</p>
 
-    <div class="btn-container">
-        <!-- 這裡的 href 必須和你的英文檔名一模一樣 -->
-        <a href="quiz-system.html" class="btn btn-quiz">🎯 進入整合刷題系統</a>
-        <a href="solutions.html" class="btn btn-solution">📝 查看程設整合詳解</a>
-    </div>
+    <section class="level">
+        <h2>四等考試</h2>
+        <p class="desc">計算機概要為選擇題，可刷題並記錄錯題；程式設計概要為申論題，提供逐題詳解與完整程式碼。</p>
+        <div class="btn-row">
+            <!-- 這裡的 href 必須和你的英文檔名一模一樣 -->
+            <a href="quiz-system.html" class="btn btn-quiz">
+                <b>🎯 計算機概要</b>
+                <small>選擇題刷題系統</small>
+            </a>
+            <a href="solutions.html" class="btn btn-solution">
+                <b>📝 程式設計概要</b>
+                <small>申論題整合詳解</small>
+            </a>
+        </div>
+    </section>
 
+    <section class="level">
+        <h2>三等考試 <span class="tag-soon">整理中</span></h2>
+        <p class="desc">題型為計算題與申論題，提供逐題詳解。科目：資通網路、資訊管理、資料結構、資料庫應用。</p>
+        <div class="btn-row">
+            <!-- 三等詳解上線後，把 href 改成 solutions-3.html，並移除 btn-soon 與上方「整理中」標籤 -->
+            <a href="#" class="btn btn-solution btn-soon" aria-disabled="true">
+                <b>📝 三等整合詳解</b>
+                <small>資通網路 ‧ 資訊管理 ‧ 資料結構 ‧ 資料庫應用</small>
+            </a>
+        </div>
+    </section>
+
+</div>
 </body>
 </html>
