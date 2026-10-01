@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的關務備考基地</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f6f9;
+            padding: 50px 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .btn {
+            display: block;
+            width: 250px;
+            padding: 15px 20px;
+            font-size: 18px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+        /* 刷題系統按鈕顏色（藍色） */
+        .btn-quiz { background-color: #007bff; }
+        /* 詳解按鈕顏色（綠色） */
+        .btn-solution { background-color: #28a745; }
+    </style>
+</head>
+<body>
+
+    <h1>📚 關務特考 準備中心</h1>
+
+    <div class="btn-container">
+        <!-- 這裡的 href 必須和你的英文檔名一模一樣 -->
+        <a href="quiz-system.html" class="btn btn-quiz">🎯 進入整合刷題系統</a>
+        <a href="solutions.html" class="btn btn-solution">📝 查看程設整合詳解</a>
+    </div>
+
+</body>
+</html>
