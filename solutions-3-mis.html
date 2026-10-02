@@ -96,8 +96,7 @@ body {
 /* ===== 控制列 ===== */
 .controls {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(244,241,234,0.97);
-  backdrop-filter: blur(8px);
+  background: rgb(244,241,234);
   border-bottom: 1.5px solid var(--line);
   padding: .9rem 1.5rem;
   box-shadow: 0 3px 14px var(--shadow);
@@ -4699,10 +4698,29 @@ function codeBlockHtml(codeObj) {
 }
 
 /* ---------- 渲染題目卡 ---------- */
+function bodyHtml(q) {
+  return `      <span class="section-label q">考題</span>
+      <div class="q-question">${escapeHtml(q.question).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')}</div>
+      ${q.figure ? `<div class="q-figure" style="margin:.7rem 0">${q.figure}</div>` : ''}
+      <span class="section-label a">詳解</span>
+      <div class="q-answer">${renderMarkdown(q.answer)}</div>
+      ${q.code ? codeBlockHtml(q.code) : ''}`;
+}
+
+function fillBody(card) {
+  if (card.dataset.filled) return;
+  const q = ALL_Q.find(x => x.id === card.dataset.id);
+  if (!q) return;
+  const box = card.querySelector('.q-body');
+  box.innerHTML = bodyHtml(q);
+  card.dataset.filled = '1';
+  if (state.terms.length) highlightIn(box, state.terms);
+}
+
 function questionCard(q, forceOpen) {
   const t = TOPIC_INFO[q.topic] || { name: q.topicName, cls: '' };
   const isOpen = openIds.has(q.id) || !!forceOpen;
-  return `<div class="q-card ${t.cls}${isOpen ? ' open' : ''}" data-id="${q.id}">
+  return `<div class="q-card ${t.cls}${isOpen ? ' open' : ''}" data-id="${q.id}"${isOpen ? ' data-filled="1"' : ''}>
     <div class="q-header" onclick="toggleCard(this)">
       <div class="q-no">${q.no}</div>
       <div class="q-headmain">
@@ -4716,14 +4734,7 @@ function questionCard(q, forceOpen) {
       </div>
       <div class="q-toggle">+</div>
     </div>
-    <div class="q-body">
-      <span class="section-label q">考題</span>
-      <div class="q-question">${escapeHtml(q.question).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')}</div>
-      ${q.figure ? `<div class="q-figure" style="margin:.7rem 0">${q.figure}</div>` : ''}
-      <span class="section-label a">詳解</span>
-      <div class="q-answer">${renderMarkdown(q.answer)}</div>
-      ${q.code ? codeBlockHtml(q.code) : ''}
-    </div>
+    <div class="q-body">${isOpen ? bodyHtml(q) : ''}</div>
   </div>`;
 }
 
@@ -4852,6 +4863,7 @@ function jumpTo(key) {
 function toggleCard(headerEl) {
   const card = headerEl.parentElement;
   const open = card.classList.toggle('open');
+  if (open) fillBody(card);
   if (open) openIds.add(card.dataset.id); else openIds.delete(card.dataset.id);
   syncExpandBtn();
 }
@@ -4907,6 +4919,7 @@ function toggleExpandAll() {
   const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
   cards.forEach(c => {
     c.classList.toggle('open', !allOpen);
+    if (!allOpen) fillBody(c);
     if (allOpen) openIds.delete(c.dataset.id); else openIds.add(c.dataset.id);
   });
   syncExpandBtn();
