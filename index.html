@@ -47,6 +47,14 @@
         /* 詳解按鈕顏色（綠色） */
         .btn-solution { background-color: #28a745; }
 
+        /* 三等：各科目的專屬色（與各科詳解頁內的科目標籤同色） */
+        .btn-net { background-color: #b5651d; }
+        .btn-mis { background-color: #4a5859; }
+        .btn-ds  { background-color: #6a4c93; }
+        .btn-db  { background-color: #1f5673; }
+        .btn-soon.btn-net { border-left: 6px solid #b5651d; }
+        .btn-soon.btn-mis { border-left: 6px solid #4a5859; }
+
         /* 尚未上線 */
         .btn-soon {
             background: #e6e9ef; color: #7b8498; box-shadow: none;
@@ -82,13 +90,25 @@
     </section>
 
     <section class="level">
-        <h2>三等考試 <span class="tag-soon">整理中</span></h2>
-        <p class="desc">題型為計算題與申論題，提供逐題詳解。科目：資通網路、資訊管理、資料結構、資料庫應用。</p>
+        <h2>三等考試</h2>
+        <p class="desc">題型為計算題與申論題，提供逐題詳解。四個科目各自獨立一個頁面。</p>
         <div class="btn-row">
-            <!-- 三等詳解上線後，把 href 改成 solutions-3.html，並移除 btn-soon 與上方「整理中」標籤 -->
-            <a href="#" class="btn btn-solution btn-soon" aria-disabled="true">
-                <b>📝 三等整合詳解</b>
-                <small>資通網路 ‧ 資訊管理 ‧ 資料結構 ‧ 資料庫應用</small>
+            <!-- 其他三科上線後：把 href 改成對應檔名，並移除 btn-soon 與 small 內的「整理中」 -->
+            <a href="solutions-3-net.html" class="btn btn-net">
+                <b>📝 資通網路</b>
+                <small>97～115 年 ‧ 92 題詳解</small>
+            </a>
+            <a href="solutions-3-mis.html" class="btn btn-mis">
+                <b>📝 資訊管理</b>
+                <small>97～114 年 ‧ 71 題詳解</small>
+            </a>
+            <a href="solutions-3-ds.html" class="btn btn-ds">
+                <b>📝 資料結構</b>
+                <small>97～115 年 ‧ 86 題詳解</small>
+            </a>
+            <a href="solutions-3.html" class="btn btn-db">
+                <b>📝 資料庫應用</b>
+                <small>97～115 年 ‧ 81 題詳解</small>
             </a>
         </div>
     </section>
