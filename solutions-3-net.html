@@ -296,7 +296,9 @@ body {
 .q-answer table {
   border-collapse: collapse; width: 100%; margin: .8rem 0;
   font-size: .86rem;
+  display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;  /* MOBILE_TABLE：手機寬度下表格可左右捲動 */
 }
+.q-figure { max-width: 100%; overflow-x: auto; }
 .q-answer th, .q-answer td {
   border: 1px solid var(--line); padding: .4rem .6rem;
   text-align: left;
@@ -6206,9 +6208,15 @@ function codeBlockHtml(codeObj) {
 }
 
 /* ---------- 渲染題目卡 ---------- */
+/* QFENCE：考題中的程式碼圍欄 ``` 轉成程式碼區塊（避免原樣顯示、長行撐破版面） */
+function qFences(h) {
+  return h.replace(/```[a-z]*\n([\s\S]*?)\n```/g, (m, c) =>
+    '<pre style="background:#2b303b;color:#eee;padding:.7rem 1rem;border-radius:6px;overflow-x:auto;margin:.5rem 0;font-size:.85rem;white-space:pre">' + c + '</pre>');
+}
+
 function bodyHtml(q) {
   return `      <span class="section-label q">考題</span>
-      <div class="q-question">${escapeHtml(q.question).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')}</div>
+      <div class="q-question">${qFences(escapeHtml(q.question)).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')}</div>
       ${q.figure ? `<div class="q-figure" style="margin:.7rem 0">${q.figure}</div>` : ''}
       <span class="section-label a">詳解</span>
       <div class="q-answer">${renderMarkdown(q.answer)}</div>
