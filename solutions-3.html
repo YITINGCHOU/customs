@@ -52,11 +52,6 @@ body {
   border-bottom: 4px solid var(--accent);
   position: relative;
 }
-.site-header::after {
-  content: '';
-  position: absolute; left: 0; right: 0; bottom: -4px; height: 4px;
-  background: repeating-linear-gradient(90deg, var(--accent) 0 18px, transparent 18px 36px);
-}
 .site-header .kicker {
   font-size: .78rem; letter-spacing: .55em; text-indent: .55em;
   color: var(--gold); font-weight: 700; margin-bottom: .7rem;
@@ -584,20 +579,27 @@ mark.hl {
   font-family: 'Noto Sans TC', sans-serif; font-size: .8rem;
 }
 .jump-foot button:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ===== 子主題分類晶片：樣式沿用一般晶片（無色），顏色只出現在題目卡的標籤、色條與分組標題 ===== */
+/* 手機：晶片改成單列、可左右滑動，避免固定列佔掉半個螢幕 */
+@media (max-width: 640px) {
+  .filter-row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: .35rem; scrollbar-width: thin; }
+  .filter-row .chip { flex: 0 0 auto; white-space: nowrap; }
+}
 </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="kicker">公務人員特種考試關務人員三等考試 ‧ 資訊處理</div>
-  <h1>資訊處理<span class="stamp">·</span>三等非選擇題<br>歷年考古題完整詳解</h1>
+  <h1>資訊處理・三等非選擇題<br>歷年考古題完整詳解</h1>
   <div class="sub" id="subLine">逐題解析</div>
 </header>
 
 <div class="stat-bar">
   <div class="stat"><div class="num" id="statYear">—</div><div class="lbl">考試年度</div></div>
   <div class="stat"><div class="num" id="statQ">—</div><div class="lbl">題目總數</div></div>
-  <div class="stat"><div class="num" id="statTopic">—</div><div class="lbl">科目</div></div>
+  <div class="stat"><div class="num" id="statTopic">—</div><div class="lbl">主題分類</div></div>
   <div class="stat"><div class="num">100%</div><div class="lbl">附詳解</div></div>
 </div>
 
@@ -605,7 +607,7 @@ mark.hl {
   <div class="controls-inner">
     <div class="mode-switch">
       <button class="active" data-mode="year" onclick="setMode('year')">依年度</button>
-      <button data-mode="topic" onclick="setMode('topic')">依科目</button>
+      <button data-mode="topic" onclick="setMode('topic')">依主題分類</button>
     </div>
     <div class="search-box">
       <input type="text" id="searchInput" autocomplete="off" placeholder="搜尋（多個關鍵字用空格分開）">
@@ -632,7 +634,7 @@ mark.hl {
 <footer class="site-footer">
   <p><strong>公務人員特種考試關務人員三等考試</strong>　資訊處理・非選擇題　考古題複習系統</p>
   <p id="footLine">所有詳解為依專業知識編寫之參考解答，非官方標準答案。</p>
-  <p style="margin-top:.6rem;opacity:.7;">點擊任一題目卡可展開／收合詳解　‧　可切換「依年度」或「依科目」檢視</p>
+  <p style="margin-top:.6rem;opacity:.7;">點擊任一題目卡可展開／收合詳解　‧　可切換「依年度」或「依主題分類」檢視</p>
 </footer>
 
 <script>// 公務人員特種考試關務人員三等考試 - 資訊處理 非選擇題 考古題詳解
@@ -7055,10 +7057,13 @@ const TOPIC_INFO = {
 };
 
 // 攤平成題目陣列
+const SUBTOPICS = [{"key": "s1", "name": "資料庫概念、架構與索引", "color": "#1f5673"}, {"key": "s2", "name": "ER／EER 與資料庫設計", "color": "#8a3324"}, {"key": "s3", "name": "SQL、視界與關聯代數", "color": "#2f6b4f"}, {"key": "s4", "name": "正規化與函數相依", "color": "#6a4c93"}, {"key": "s5", "name": "交易、並行與復原", "color": "#a07e2c"}, {"key": "s6", "name": "安全控制與分散式資料庫", "color": "#b5651d"}, {"key": "s7", "name": "資料倉儲與資料探勘", "color": "#4a5859"}];
+const SUB_INFO = Object.fromEntries(SUBTOPICS.map(x => [x.key, x]));
+const SUB_MAP = {"cs3-db-115-1": "s3", "cs3-db-115-2": "s4", "cs3-db-115-3": "s7", "cs3-db-115-4": "s1", "cs3-db-114-1": "s3", "cs3-db-114-2": "s1", "cs3-db-114-3": "s7", "cs3-db-114-4": "s3", "cs3-db-113-1": "s2", "cs3-db-113-2": "s3", "cs3-db-113-3": "s4", "cs3-db-113-4": "s5", "cs3-db-112-1": "s1", "cs3-db-112-2": "s2", "cs3-db-112-3": "s4", "cs3-db-112-4": "s7", "cs3-db-111-1": "s3", "cs3-db-111-2": "s1", "cs3-db-111-3": "s5", "cs3-db-111-4": "s4", "cs3-db-110-1": "s2", "cs3-db-110-2": "s1", "cs3-db-110-3": "s4", "cs3-db-110-4": "s7", "cs3-db-109-1": "s2", "cs3-db-109-2": "s3", "cs3-db-109-3": "s4", "cs3-db-109-4": "s5", "cs3-db-108-1": "s7", "cs3-db-108-2": "s4", "cs3-db-108-3": "s5", "cs3-db-108-4": "s3", "cs3-db-106-1": "s2", "cs3-db-106-2": "s4", "cs3-db-106-3": "s3", "cs3-db-106-4": "s5", "cs3-db-105-1": "s1", "cs3-db-105-2": "s2", "cs3-db-105-3": "s4", "cs3-db-105-4": "s4", "cs3-db-104-1": "s2", "cs3-db-104-2": "s3", "cs3-db-104-3": "s3", "cs3-db-104-4": "s2", "cs3-db-104-5": "s4", "cs3-db-104-6": "s4", "cs3-db-103-1": "s3", "cs3-db-103-2": "s4", "cs3-db-103-3": "s2", "cs3-db-103-4": "s5", "cs3-db-103-5": "s6", "cs3-db-102-1": "s7", "cs3-db-102-2": "s4", "cs3-db-102-3": "s2", "cs3-db-102-4": "s3", "cs3-db-102-5": "s4", "cs3-db-102-6": "s4", "cs3-db-102-7": "s5", "cs3-db-102-8": "s7", "cs3-db-101-1": "s1", "cs3-db-101-2": "s3", "cs3-db-101-3": "s5", "cs3-db-101-4": "s4", "cs3-db-101-5": "s7", "cs3-db-100-1": "s6", "cs3-db-100-2": "s2", "cs3-db-100-3": "s7", "cs3-db-100-4": "s6", "cs3-db-99-1": "s6", "cs3-db-99-2": "s1", "cs3-db-99-3": "s1", "cs3-db-99-4": "s4", "cs3-db-99-5": "s2", "cs3-db-98-1": "s3", "cs3-db-98-2": "s3", "cs3-db-98-3": "s4", "cs3-db-98-4": "s1", "cs3-db-97-1": "s1", "cs3-db-97-2": "s1", "cs3-db-97-3": "s5", "cs3-db-97-4": "s2"};
 const ALL_Q = [];
 ALL_YEARS.forEach(y => {
   y.questions.forEach(q => {
-    ALL_Q.push({ ...q, year: y.year, subject: y.subject,
+    ALL_Q.push({ ...q, sub: SUB_MAP[q.id] || '', year: y.year, subject: y.subject,
                  yearNote: y.note || '', timeLimit: y.timeLimit });
   });
 });
@@ -7620,14 +7625,15 @@ function fillBody(card) {
 
 function questionCard(q, forceOpen) {
   const t = TOPIC_INFO[q.topic] || { name: q.topicName, cls: '' };
+  const sb = SUB_INFO[q.sub] || null;
   const isOpen = openIds.has(q.id) || !!forceOpen;
   return `<div class="q-card ${t.cls}${isOpen ? ' open' : ''}" data-id="${q.id}"${isOpen ? ' data-filled="1"' : ''}>
-    <div class="q-header" onclick="toggleCard(this)">
+    <div class="q-header" onclick="toggleCard(this)"${sb ? ` style="border-left-color:${sb.color}"` : ''}>
       <div class="q-no">${q.no}</div>
       <div class="q-headmain">
         <div class="q-title">${escapeHtml(q.title)}</div>
         <div class="q-tags">
-          <span class="tag tag-topic">${t.name}</span>
+          <span class="tag tag-topic"${sb ? ` style="background:${sb.color}"` : ''}>${sb ? sb.name : t.name}</span>
           <span class="tag tag-year">${q.year}年</span>
           ${q.part ? `<span class="tag tag-part">${escapeHtml(q.part)}　第${q.no}題</span>` : ''}
           <span class="tag tag-score">${q.score}分</span>
@@ -7641,7 +7647,7 @@ function questionCard(q, forceOpen) {
 
 /* ---------- 篩選 ---------- */
 function filterQuestions() {
-  let list = ALL_Q.filter(q => state.topic === 'all' || q.topic === state.topic);
+  let list = ALL_Q.filter(q => state.topic === 'all' || q.sub === state.topic);
   if (state.terms.length) {
     // 多關鍵字 AND、全形半形統一、依相關度排序（標題 > 考題 > 詳解 > 程式碼）
     list = list
@@ -7727,22 +7733,20 @@ function render() {
       </div>`;
     });
   } else {
-    JUMP_TITLE = '跳到科目';
-    // 依主題分組
-    const byTopic = {};
-    list.forEach(q => { (byTopic[q.topic] = byTopic[q.topic] || []).push(q); });
-    Object.keys(TOPIC_INFO).forEach(tk => {
-      const qs = byTopic[tk];
+    JUMP_TITLE = '跳到主題';
+    // 依主題（子主題）分組
+    const bySub = {};
+    list.forEach(q => { (bySub[q.sub] = bySub[q.sub] || []).push(q); });
+    SUBTOPICS.forEach(st => {
+      const qs = bySub[st.key];
       if (!qs || qs.length === 0) return;
-      // 同主題內依年度新到舊、再依題號
       qs.sort((a, b) => Number(b.year) - Number(a.year));
-      const t = TOPIC_INFO[tk];
-      JUMP_ITEMS.push({ key: 't' + tk, label: t.name, sub: `${qs.length} 題` });
-      html += `<div class="group" id="g-t${tk}">
+      JUMP_ITEMS.push({ key: 't' + st.key, label: st.name, sub: `${qs.length} 題` });
+      html += `<div class="group" id="g-t${st.key}">
         <div class="group-head">
-          <span class="g-badge">${t.name}</span>
-          <span class="g-title">歷年考題彙整</span>
-          <span class="g-meta">共 ${qs.length} 題<br>跨 ${new Set(qs.map(q=>q.year)).size} 個年度</span>
+          <span class="g-badge" style="background:${st.color}">${st.name}</span>
+          <span class="g-title">相似概念彙整</span>
+          <span class="g-meta">共 ${qs.length} 題<br>跨 ${new Set(qs.map(q => q.year)).size} 個年度</span>
         </div>
         ${qs.map(q => questionCard(q)).join('')}
       </div>`;
@@ -7782,21 +7786,21 @@ function updateStatBar() {
   const yearSet = new Set(scope.map(q => q.year));
   document.getElementById('statYear').textContent = yearSet.size;
   document.getElementById('statQ').textContent = scope.length;
-  document.getElementById('statTopic').textContent = new Set(scope.map(q => q.topic)).size;
+  document.getElementById('statTopic').textContent = new Set(scope.map(q => q.sub)).size;
 }
 
 function rebuildTopicChips() {
   const scope = ALL_Q;
-  const topicCount = {};
-  scope.forEach(q => topicCount[q.topic] = (topicCount[q.topic]||0)+1);
+  const cnt = {};
+  scope.forEach(q => cnt[q.sub] = (cnt[q.sub] || 0) + 1);
   const filterRow = document.getElementById('filterRow');
   let chips = `<button class="chip ${state.topic === 'all' ? 'active' : ''}" data-topic="all"
     onclick="setTopic('all')">全部<span class="c-count">${scope.length}</span></button>`;
-  Object.keys(TOPIC_INFO).forEach(tk => {
-    const cnt = topicCount[tk] || 0;
-    if (cnt === 0) return;
-    chips += `<button class="chip ${state.topic === tk ? 'active' : ''}" data-topic="${tk}"
-      onclick="setTopic('${tk}')">${TOPIC_INFO[tk].name}<span class="c-count">${cnt}</span></button>`;
+  SUBTOPICS.forEach(st => {
+    const n = cnt[st.key] || 0;
+    if (!n) return;
+    chips += `<button class="chip ${state.topic === st.key ? 'active' : ''}" data-topic="${st.key}"
+      onclick="setTopic('${st.key}')">${st.name}<span class="c-count">${n}</span></button>`;
   });
   filterRow.innerHTML = chips;
 }
