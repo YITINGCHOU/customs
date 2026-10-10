@@ -627,6 +627,10 @@ mark.hl {
 <div class="jump-panel" id="jumpPanel" hidden>
   <div class="jump-head"><span id="jumpTitle">跳到年度</span><button onclick="toggleJump(false)" aria-label="關閉">✕</button></div>
   <div class="jump-grid" id="jumpGrid"></div>
+  <div class="jump-foot">
+    <button onclick="setAllCards(true)">全部展開</button>
+    <button onclick="setAllCards(false)">全部收合</button>
+  </div>
 </div>
 
 <button class="to-top" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
@@ -7818,6 +7822,13 @@ function syncExpandBtn() {
   const cards = [...document.querySelectorAll('.q-card')];
   const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
   document.getElementById('btnExpand').textContent = allOpen ? '全部收合' : '全部展開';
+}
+function setAllCards(open) {
+  document.querySelectorAll('.q-card').forEach(c => {
+    c.classList.toggle('open', open);
+    if (open) { fillBody(c); openIds.add(c.dataset.id); } else openIds.delete(c.dataset.id);
+  });
+  syncExpandBtn();
 }
 function toggleExpandAll() {
   const cards = [...document.querySelectorAll('.q-card')];
