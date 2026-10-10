@@ -538,8 +538,17 @@ mark.hl {
 }
 .jump-fab.show { display: block; }
 .jump-fab:hover { background: var(--ink); }
+.collapse-fab {
+  position: fixed; right: 1.5rem; bottom: 8.4rem; z-index: 90;
+  height: 2.6rem; padding: 0 1rem; border: 1.5px solid var(--ink-soft); border-radius: 999px;
+  background: var(--card); color: var(--ink); cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif; font-size: .88rem; font-weight: 700;
+  box-shadow: 0 4px 12px var(--shadow); display: none;
+}
+.collapse-fab.show { display: block; }
+.collapse-fab:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .jump-panel {
-  position: fixed; right: 1.5rem; bottom: calc(5.3rem + 3.2rem); z-index: 95;
+  position: fixed; right: 1.5rem; bottom: calc(8.4rem + 3.1rem); z-index: 95;
   width: min(360px, calc(100vw - 2.4rem)); max-height: 60vh; overflow: auto;
   background: var(--card); border: 1.5px solid var(--line); border-radius: 10px;
   box-shadow: 0 10px 30px rgba(40,32,20,.25);
@@ -586,6 +595,24 @@ mark.hl {
   .filter-row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: .35rem; scrollbar-width: thin; }
   .filter-row .chip { flex: 0 0 auto; white-space: nowrap; }
 }
+/* ===== 工具列自動隱藏 ===== */
+.controls { transition: transform .2s ease, box-shadow .2s ease; will-change: transform; }
+.controls.ctl-hidden { transform: translateY(-100%); box-shadow: none; pointer-events: none; }
+.ctl-edge { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 120; display: none; }
+body.ctl-away .ctl-edge { display: block; }
+.ctl-handle { display: none; }
+@media (hover: none) {
+  .ctl-handle {
+    display: block; position: fixed; top: 0; left: 50%; transform: translate(-50%, -100%); z-index: 49;
+    padding: .2rem .9rem .25rem; border: 1.5px solid var(--line); border-top: none;
+    border-radius: 0 0 10px 10px; background: rgb(244,241,234); color: var(--ink-soft);
+    font-family: 'Noto Sans TC', sans-serif; font-size: .74rem; font-weight: 700; letter-spacing: .08em;
+    box-shadow: 0 3px 10px var(--shadow); opacity: 0; pointer-events: none;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  body.ctl-away .ctl-handle { transform: translate(-50%, 0); opacity: .92; pointer-events: auto; }
+}
+
 </style>
 </head>
 <body>
@@ -603,6 +630,8 @@ mark.hl {
   <div class="stat"><div class="num">100%</div><div class="lbl">附詳解</div></div>
 </div>
 
+<button class="ctl-handle" id="ctlHandle" onclick="ctlShow()" aria-label="顯示工具列">▾ 工具列</button>
+<div class="ctl-edge" id="ctlEdge"></div>
 <div class="controls">
   <div class="controls-inner">
     <div class="mode-switch">
@@ -627,12 +656,9 @@ mark.hl {
 <div class="jump-panel" id="jumpPanel" hidden>
   <div class="jump-head"><span id="jumpTitle">跳到年度</span><button onclick="toggleJump(false)" aria-label="關閉">✕</button></div>
   <div class="jump-grid" id="jumpGrid"></div>
-  <div class="jump-foot">
-    <button onclick="setAllCards(true)">全部展開</button>
-    <button onclick="setAllCards(false)">全部收合</button>
-  </div>
 </div>
 
+<button class="collapse-fab" id="collapseFab" onclick="collapseAllCards()" aria-label="全部收合">⇅ 收合</button>
 <button class="to-top" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <footer class="site-footer">
@@ -5828,7 +5854,8 @@ function scrollToGroup(key) {
   const el = document.getElementById('g-' + key);
   if (!el) return;
   const ctrl = document.querySelector('.controls');
-  const top = el.getBoundingClientRect().top + window.scrollY - (ctrl ? ctrl.offsetHeight : 0) - 10;
+  if (window.ctlQuiet) { window.ctlQuiet(300); window.ctlHide(); }
+  const top = el.getBoundingClientRect().top + window.scrollY - 10;
   const root = document.documentElement;
   root.style.scrollBehavior = 'auto';          // 跳轉用瞬間定位，避免長距離捲動動畫
   window.scrollTo(0, Math.max(0, top));
@@ -6433,17 +6460,30 @@ function setTopic(topic) {
 }
 
 /* 按鈕文字依「目前畫面上的卡片是否都已展開」決定，不再用獨立旗標 */
+function updateCollapseFab() {
+  const f = document.getElementById('collapseFab');
+  if (f) f.classList.toggle('show', !!document.querySelector('.q-card.open'));
+}
+/* 全部收合：收起所有詳解，並讓「正在讀的那一題」留在原本的視窗位置，不會跳到別處 */
+function collapseAllCards() {
+  const open = [...document.querySelectorAll('.q-card.open')];
+  if (!open.length) return;
+  const ctrl = document.querySelector('.controls');
+  const off = (ctrl && ctrl.getBoundingClientRect().bottom > 0 ? ctrl.offsetHeight : 0) + 12;
+  const anchor = open.find(c => c.getBoundingClientRect().bottom > off) || open[open.length - 1];
+  const want = Math.min(Math.max(anchor.getBoundingClientRect().top, off), window.innerHeight * 0.6);
+  open.forEach(c => { c.classList.remove('open'); openIds.delete(c.dataset.id); });
+  syncExpandBtn();
+  const root = document.documentElement;
+  root.style.scrollBehavior = 'auto';
+  window.scrollBy(0, anchor.getBoundingClientRect().top - want);
+  root.style.scrollBehavior = '';
+}
 function syncExpandBtn() {
+  updateCollapseFab();
   const cards = [...document.querySelectorAll('.q-card')];
   const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
   document.getElementById('btnExpand').textContent = allOpen ? '全部收合' : '全部展開';
-}
-function setAllCards(open) {
-  document.querySelectorAll('.q-card').forEach(c => {
-    c.classList.toggle('open', open);
-    if (open) { fillBody(c); openIds.add(c.dataset.id); } else openIds.delete(c.dataset.id);
-  });
-  syncExpandBtn();
 }
 function toggleExpandAll() {
   const cards = [...document.querySelectorAll('.q-card')];
@@ -6484,6 +6524,49 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+</script>
+<script>
+/* 工具列自動隱藏：往下捲動或滑鼠離開工具列就收起；滑鼠移到畫面最頂端才出現 */
+(function () {
+  const ctrl = document.querySelector('.controls');
+  if (!ctrl) return;
+  const touch = window.matchMedia('(hover: none)').matches;
+  let lastY = window.scrollY, acc = 0, quiet = 0, hiddenAt = 0;
+  const away = v => document.body.classList.toggle('ctl-away', v);
+  const isHidden = () => ctrl.classList.contains('ctl-hidden');
+  window.ctlShow = function () { ctrl.classList.remove('ctl-hidden'); away(false); acc = 0; };
+  window.ctlHide = function () { if (isHidden()) return; ctrl.classList.add('ctl-hidden'); away(true); acc = 0; hiddenAt = Date.now(); };
+  window.ctlQuiet = function (ms) { quiet = Date.now() + (ms || 250); };   // 程式內部捲動（跳轉、重新繪製）時暫停判斷
+  function inHeader() {                       // 頁首、統計列還看得到時，工具列自然在原位，不收
+    let prev = ctrl.previousElementSibling;
+    while (prev && (prev.id === 'ctlHandle' || prev.id === 'ctlEdge')) prev = prev.previousElementSibling;
+    return prev ? prev.getBoundingClientRect().bottom > 0 : window.scrollY < 120;
+  }
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY, dy = y - lastY; lastY = y;
+    if (Date.now() < quiet) return;
+    if (inHeader()) { ctrl.classList.remove('ctl-hidden'); away(false); acc = 0; return; }
+    if (dy > 0) {
+      acc = acc > 0 ? acc + dy : dy;
+      if (acc > 8) window.ctlHide();
+    } else if (dy < 0 && touch) {
+      acc = acc < 0 ? acc + dy : dy;
+      if (acc < -50 && isHidden()) window.ctlShow();
+    }
+  }, { passive: true });
+  /* 點工具列上的按鈕會重新繪製內容、捲動高度改變，那一下不要誤判成往下捲 */
+  ctrl.addEventListener('click', () => window.ctlQuiet(500));
+  ctrl.addEventListener('keyup', () => window.ctlQuiet(500));
+  /* 滑鼠移開工具列 → 收起（頁首還看得到時不收） */
+  ctrl.addEventListener('mouseleave', () => { if (!inHeader()) window.ctlHide(); });
+  /* 保險：游標快速甩出工具列時瀏覽器可能不送 mouseleave，所以也看游標位置 */
+  document.addEventListener('mousemove', e => {
+    if (!isHidden() && !inHeader() && e.clientY > ctrl.offsetHeight + 2) window.ctlHide();
+  }, { passive: true });
+  /* 滑鼠移到畫面最頂端 → 出現（剛收起 0.4 秒內不理會，避免游標剛好停在頂端時又彈出來） */
+  const edge = document.getElementById('ctlEdge');
+  if (edge) edge.addEventListener('mousemove', () => { if (Date.now() - hiddenAt > 400) window.ctlShow(); });
+})();
 </script>
 </body>
 </html>
